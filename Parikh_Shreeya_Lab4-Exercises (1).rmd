@@ -1,0 +1,114 @@
+X---
+title: "BIA-658 Lab 4 Exercises"
+author: "Shreeya Parikh"
+output: html_document
+---
+**Note**:   
+
+- Submit it as a HTML file (Knit to HTML) as HW3.
+- Make sure you that the `Lab-4-Data/` folder is in the same directory of the Rmd file. 
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+library(igraph)
+library(tidyverse)
+```
+
+Q1. The books about US politics dataset (Valdis Krebs) consists of co-purchasing network of books about US politics sold by Amazon.com. 
+Nodes are the books.
+Edges represent frequent co-purchasing of books by the same buyers, as indicated by the "customers who bought this book also bought
+these other books" feature on Amazon.
+
+Nodes have been given values "l", "n", or "c" to indicate whether they are
+"liberal", "neutral", or "conservative".  
+
+-use polbooks.gml in the polbooks folder
+-load the data as a graph object in igraph 
+-find the node values  
+-find the size, density and clustering of the network
+-plot the network with node colors representing node values 
+-what can you tell based on the calculated network structural properties and the plot?(Answer the last question in a sentence starting with # to comment it off)
+
+```{r}
+# Write your code here
+# find the node values using V(YourGraph)$value
+# use "colors <- c("yellow", "red","blue")[as.numeric(as.factor(V(YourGraph)$value))]" to create colors since the node values are texts
+bg<- read.graph(file = "C:/Users/14707/Downloads/Lab4-Data/Lab4-Data/polbooks/polbooks.gml", format = "gml")
+nodes<-V(bg)$value
+vcount(bg)
+ecount(bg)
+# It has 105 vertices and 441 edges
+graph.density(bg)
+transitivity(bg) #clustering
+colors <- c("yellow","red","blue")[as.numeric(as.factor(V(bg)$value))]
+plot(bg, vertex.color = colors)
+#The liberals buy liberal books and the conservatives buy conservative books, they rarely change their preference, if they do they choose neutral books. 
+
+```
+
+Q2. Use the edge betweenness clustering algorithm to detect communities in the network. 
+- How many communities were detected?
+- What are the sizes of each community?
+- What's the modularity score?
+- Plot the communities in the network with node colors representing their community membership
+
+```{r}
+# Write your code here
+eb<- edge.betweenness.community(bg)
+sizes(eb)
+# It has 5 communities of sizes 8,45,42,7 & 3.
+modularity(eb) #0.5168011
+plot(bg, vertex.color = membership(eb))
+
+
+
+```
+
+Q3. Use the Label Propagation algorithm to detect communities in the network. 
+- How many communities were detected?
+- What are the sizes of each community?
+- What's the modularity score?
+- Plot the communities in the network with node colors representing their community membership
+```{r}
+# Write your code here
+lp <- label.propagation.community(bg) 
+sizes(lp) 
+# It has 3 communities of sizes 53,42 &10.
+modularity(lp) #0.4946216
+plot(bg, vertex.color = membership(lp))
+
+
+```
+
+Q4. Compare the community detection results of the two algorithms 1) with each other  (i.e., in terms of modularity score, number of communities, community membership), and 2) with the labeled book political tendency (node value). Which algorithm produces better community detection results? Why?
+```{r}
+# Answer in texts
+#The Edge Betweenness Clustering algorithm detects 5 communities with the modularity score of 0.5168011, whereas the Label Propagation algorithm detects 3 communities with the modularity score of 0.496216.
+
+```
+
+Q5. Create a visualization of the Quaker network in Gephi. Submit the png file with the html file.
+
+This Quaker network contains network data for relationships between seventeenth-century Quakers, originally compiled by John Ladd, Jessica Otis, Christopher N. Warren, and Scott Weingart.
+
+- load quaker-edges.csv in the marvel folder
+- also load quaker-nodes.csv in the same workspace to add node attributes
+- plot the network with a layout of your choice, make sure your network is visualized without overlapping nodes 
+- display labels of the node
+- also display gender of nodes along with labels in the workspace
+- set the size of nodes as its eigenvector centrality
+- scale the node label based on node size; make sure the labels are readable
+- only display nodes with degree >=3
+- detect the communities in the network and use node color to represent nodes' community affiliation
+- export the visualization as a png file
+- Answer the questions below:
+1. How many communities are there in the network?
+2. Who is the most prominent female in the network?
+3. Who has the most important friends in the network?
+```{r}
+# Answer in texts
+# 1.There are 5 communities in the network.
+# 2. Margaret Fell is the most prominent female in the network
+# 3. George Fox has the most important friends in the network
+
+
+```
