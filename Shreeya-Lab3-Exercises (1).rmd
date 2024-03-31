@@ -1,0 +1,99 @@
+---
+title: "BIA-658 Lab 3 Exercises"
+author: "Shreeya Parikh"
+output: html_document
+---
+**Note**:   
+
+- Submit it as a HTML file (Knit to HTML) as HW2.
+- Make sure you that the `Lab3-Data/` folder is in the same directory of the Rmd file. 
+- To read more about the Marvel network, check out this fun article: https://arxiv.org/pdf/cond-mat/0202174.pdf
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+library(igraph)
+library(tidyverse)
+```
+
+Q1. The Marvel network data contains character relationships within the Marvel comic book universe (beginning in 1961 and ending around 1999/2000), compiled by Rosselló, Alberich, and Miro from Russ Chappell's from Russ Chappell's Marvel Chronology Project.
+
+-use marvel-unimodal-edges.csv in the marvel folder
+-load the data as a graph object in igraph 
+-add edge weights as an edge attribute
+-plot the network
+
+```{r}
+# Write your code here
+marvel_edge<-read.csv("C:/Users/14707/Downloads/Lab3-Data/Lab3-Data/marvel/marvel-unimodal-edges.csv")
+marvel_edge_matrix<-as.matrix(marvel_edge[,1:2])                     
+marvel_g<-graph_from_edgelist(marvel_edge_matrix,directed=F)
+E(marvel_g)$weight<-marvel_edge$Weight #This adds the weight as an edge attribute
+plot(marvel_g,
+layout=layout.fruchterman.reingold,vertex.size = 10, vertex.color = "blue",vertex.label.cex = 0.5, vertex.label.color = "black",
+vertex.label.font = 8, edge.width = E(marvel_g)$weight*0.1, edge.color = "red")
+
+```
+
+Q2. Obtain the degree distribution of the marvel network; plot the network's degree distribution and calculate the degree centralization of the network. What can you conclude?(Answer the last question in a sentence starting with # to comment it off)
+
+```{r}
+# Write your code here
+marvel_deg<-degree_distribution(marvel_g)
+marvel_cent<-degree(marvel_g)
+marvel_deg_df  <- as.data.frame(marvel_deg)
+ggplot(marvel_deg_df,aes(marvel_deg))+geom_histogram(bins=max(marvel_deg),binwidth = 0.2) #degree distribution
+centralization.degree(marvel_g)$centralization
+```
+
+
+Q3. Which nodes(s) are most central in the network in terms of degree, closeness, betweenness and eigenvector centrality? What can you conclude? (Answer the last question in a sentence starting with # to comment it off)
+
+```{r}
+# Write your code here
+degree(marvel_g)[degree(marvel_g)==max(degree(marvel_g))]
+#Captian America has the highest node with 258 
+#closeness(marvel_g)[closeness(marvel_g)==max(closeness(marvel_g))]     
+closeness(marvel_g)[closeness(marvel_g)==max(closeness(marvel_g))]  
+#Vision has the highest closeness of 0.0002994012
+
+betweenness(marvel_g)[betweenness(marvel_g)==max(betweenness(marvel_g))]   
+#Vision has the highest betweeness of 2088.142
+
+evcent(marvel_g)$vector[evcent(marvel_g)$vector==max(evcent(marvel_g)$vector)]
+#Captain America has an eigen vector centrality of 1 
+#This shows that Captain America is well connected throughout the network,most of the nodes are connected to it and can influence many clusters of the network as it has the highest degree centrality and eigenvector centrality.It is the most important node in the graph. Vision is in path of most of the shortest paths that could be calculated in the graph, it definately influenzes the flow of the graph and can transmit infromation easily as it is .   
+                 
+```
+
+Q4. Calculate the density, clustering and average path lengths of the network. What can you conclude? (Answer the last question in a sentence starting with # to comment it off)   
+
+```{r}
+# Write your code here
+graph.density(marvel_g)                     
+transitivity(marvel_g, type = "undirected")   
+mean_distance(marvel_g)                     
+#It is a clustered network.Hence, all nodes are well connected to each other.
+```
+
+Q5. Compare the Marvel network to a random network with the same size and density. What can you conclude? (Answer the last question in a sentence starting with # to comment it off) (Hint: simulate a random network and compare its clustering and transitivity with the Marvel network) 
+
+```{r echo = T}
+# Write your code here
+marvel_nc<- vcount(marvel_g)     
+marvel_ec<- ecount(marvel_g)    
+random_graph_obj<-erdos.renyi.game(marvel_nc, marvel_ec, type="gnm")  
+
+#random network
+plot(random_graph_obj,layout=layout.fruchterman.reingold,vertex.size = 7, vertex.color = "red",vertex.label.cex = 0.4, vertex.label.color = "black",vertex.label.font = 3,edge.color = "purple")
+
+graph.density(random_graph_obj)
+transitivity(random_graph_obj)
+mean_distance(random_graph_obj)
+
+# marvel network
+graph.density(marvel_g)
+transitivity(marvel_g)
+mean_distance(marvel_g)
+
+# We can see that both the graphs have almost the same mean distance (shortest path).Also,it has similar graph density,which means all the nodes are well connected.Here most nodes can be reached from every other node by a small number of hops or steps. 
+
+```
